@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav class="topbar" th:fragment="nav(active)">
+  <div class="nav-wrap">
+    <a class="brand" th:href="@{/}">GesCal <span class="working-year" th:text="${workingYear}"></span></a>
+    <div class="nav-links">
+      <a th:href="@{/}" th:classappend="${active == 'home'} ? 'active'">Accueil</a>
+      <a th:href="@{/operations}" th:classappend="${active == 'operations'} ? 'active'">Opérations</a>
+      <a th:href="@{/clients}" th:classappend="${active == 'clients'} ? 'active'">Clients</a>
+      <a th:href="@{/tournees}" th:classappend="${active == 'tournees'} ? 'active'">Tournées</a>
+      <a th:href="@{/distributions}" th:classappend="${active == 'distributions'} ? 'active'">Distributions</a>
+      <a th:href="@{/statistiques}" th:classappend="${active == 'statistiques'} ? 'active'">Statistiques</a>
+      <a th:href="@{/recus}" th:classappend="${active == 'recus'} ? 'active'">Reçus</a>
+      <a th:href="@{/outils}" th:classappend="${active == 'outils'} ? 'active'">Outils</a>
+    </div>
+  </div>
+</nav>
+<div th:fragment="messages">
+  <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+  <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+</div>
+</body>
+</html>

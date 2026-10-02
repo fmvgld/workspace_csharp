@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Opération · GesCal</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/common :: nav('operations')}"></nav>
+<main class="container">
+  <div class="page-head">
+    <div>
+      <h1 th:text="${operation.id == 0 ? 'Nouvelle opération' : 'Modifier l’opération'}"></h1>
+      <div class="muted">Don, tournée, règlement et suivi du reçu</div>
+    </div>
+  </div>
+
+  <form id="operation-form" class="card" method="post" th:action="@{/operations/enregistrer}">
+    <input th:if="${operation.id != 0}" type="hidden" name="id" th:value="${operation.id}">
+    <div class="form-grid">
+      <div>
+        <label for="date-saisie">Date de saisie *</label>
+        <input id="date-saisie" name="dateSaisie" type="date" required th:value="${operation.dateSaisie}">
+      </div>
+      <div>
+        <label for="operation-annee">Année de campagne *</label>
+        <input id="operation-annee" name="annee" type="number" required th:value="${operation.annee}">
+      </div>
+
+      <div class="span-2">
+        <label for="selected-client">Client *</label>
+        <div class="client-main-picker">
+          <input id="selected-client" type="text" readonly
+                 aria-haspopup="dialog" title="Cliquez pour choisir un client"
+                 placeholder="Cliquez ici pour choisir un client"
+                 th:value="${operation.clientId == 0 ? '' : operation.nom + ' ' + operation.prenom}">
+          <input id="client-id" type="hidden" name="clientId"
+                 th:value="${operation.clientId == 0 ? '' : operation.clientId}">
+          <button id="open-client-dialog" class="btn btn-secondary" type="button">Nouveau client</button>
+        </div>
+        <div id="client-required-error" class="alert alert-error client-required-error" hidden>Choisissez un client avant d’enregistrer l’opération.</div>
+      </div>
+
+      <div class="span-2">
+        <label for="tournee-id">Tournée *</label>
+        <select id="tournee-id" name="tourneeId" required>
+          <option value="">Choisir…</option>
+          <option th:each="t:${tournees}" th:value="${t.id}" th:selected="${t.id == operation.tourneeId}" th:text="${t.designation()}"></option>
+        </select>
+      </div>
+      <div>
+        <label for="montant">Montant *</label>
+        <input id="montant" name="montant" type="number" step="0.01" min="0" required th:value="${operation.montant}">
+      </div>
+      <div>
+        <label for="reglement-id">Règlement *</label>
+        <select id="reglement-id" name="reglementId" required>
+          <option value="">Choisir…</option>
+          <option th:each="r:${reglements}" th:value="${r.id}" th:selected="${r.id == operation.reglementId}" th:text="${r.libelle}"></option>
+        </select>
+      </div>
+      <div class="span-2">
+        <div class="checkboxes">
+          <label class="check"><input type="checkbox" name="recu" value="true" th:checked="${operation.recu}"> Reçu demandé</label>
+          <label class="check"><input type="checkbox" name="enveloppe" value="true" th:checked="${operation.enveloppe}"> Enveloppe T</label>
+          <label class="check"><input type="checkbox" name="envoiRecu" value="true" th:checked="${operation.envoiRecu}"> Envoi du reçu</label>
+          <label class="check"><input type="checkbox" name="recuEnvoye" value="true" th:checked="${operation.recuEnvoye}"> Reçu envoyé</label>
+        </div>
+        <div id="receipt-mail-error" class="alert alert-error client-required-error" hidden>L’envoi du reçu nécessite une adresse courriel renseignée pour le client sélectionné.</div>
+      </div>
+      <div>
+        <label for="date-envoi">Date d’envoi</label>
+        <input id="date-envoi" name="dateEnvoi" type="date" th:value="${operation.dateEnvoi}">
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary">Enregistrer</button>
+      <a class="btn btn-secondary" target="_blank" th:if="${operation.id != 0}" th:href="@{/recus/{id}/pdf(id=${operation.id})}">Créer le reçu PDF</a>
+      <a class="btn btn-secondary" th:href="@{/operations(annee=${annee})}">Annuler</a>
+    </div>
+  </form>
+
+  <div id="client-source" hidden>
+    <span th:each="c:${clients}"
+          th:data-client-id="${c.id}"
+          th:data-nom="${c.nom}"
+          th:data-prenom="${c.prenom}"
+          th:data-label="${c.nomComplet().trim()}"
+          th:data-mail="${c.mail}"
+          th:data-rue="${c.nomRue()}"
+          th:data-complement="${c.complement()}"
+          th:data-cp="${c.cp()}"
+          th:data-ville="${c.ville()}"></span>
+  </div>
+
+  <dialog id="client-picker-dialog" class="client-dialog client-picker-dialog">
+    <div class="dialog-head">
+      <div><h2>Choisir un client</h2><div class="muted">Recherchez puis cliquez sur un client pour afficher son adresse.</div></div>
+      <button id="close-client-picker" class="icon-close" type="button" aria-label="Fermer">×</button>
+    </div>
+    <div class="dialog-body">
+      <label for="client-search">Rechercher dans la liste</label>
+      <input id="client-search" type="search" autocomplete="off"
+             placeholder="Nom, prénom, courriel ou ville…">
+      <div class="client-browser client-picker-content">
+        <div class="client-result-panel">
+          <div class="client-result-title"><strong>Clients trouvés</strong><span id="client-result-count" class="badge"></span></div>
+          <div class="table-wrap client-result-table">
+            <table>
+              <thead><tr><th>Nom</th><th>Prénom</th><th>Courriel</th></tr></thead>
+              <tbody id="client-results"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="client-search-panel">
+          <label>Adresse du client sélectionné</label>
+          <div id="client-address" class="client-address" aria-live="polite">
+            <strong id="client-address-name">Sélectionnez un client dans la liste</strong>
+            <span id="client-address-mail"></span>
+            <span id="client-address-street"></span>
+            <span id="client-address-city"></span>
+          </div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button id="validate-client-choice" class="btn btn-primary" type="button" disabled>Valider</button>
+        <button id="cancel-client-choice" class="btn btn-secondary" type="button">Annuler</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="client-dialog" class="client-dialog">
+    <div class="dialog-head">
+      <div><h2>Ajouter un client</h2><div class="muted">Le nouveau client sera sélectionné dans l’opération.</div></div>
+      <button id="close-client-dialog" class="icon-close" type="button" aria-label="Fermer">×</button>
+    </div>
+    <div class="dialog-body">
+      <div id="client-add-error" class="alert alert-error" hidden></div>
+      <form id="client-add-form" th:action="@{/api/clients}">
+        <div class="form-grid">
+          <div><label for="new-client-nom">Nom *</label><input id="new-client-nom" name="nom" required maxlength="100"></div>
+          <div><label for="new-client-prenom">Prénom</label><input id="new-client-prenom" name="prenom" maxlength="100"></div>
+          <div class="span-2"><label for="new-client-mail">Courriel</label><input id="new-client-mail" name="mail" type="email" maxlength="200"></div>
+          <div class="span-2"><label for="new-client-rue">Adresse / rue *</label><input id="new-client-rue" name="nomRue" required placeholder="Ex. 40 IMPASSE DES JARDINS"></div>
+          <div><label for="new-client-complement">Complément</label><input id="new-client-complement" name="complement"></div>
+          <div><label for="new-client-cp">Code postal *</label><input id="new-client-cp" name="cp" required inputmode="numeric" pattern="[0-9]{5}" minlength="5" maxlength="5" title="Saisissez un code postal à 5 chiffres"></div>
+          <div><label for="new-client-ville">Ville *</label><input id="new-client-ville" name="ville" required></div>
+          <div class="span-2"><label for="new-client-remarque">Remarque</label><textarea id="new-client-remarque" name="remarque"></textarea></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Créer et sélectionner</button>
+          <button class="btn btn-secondary" type="button" onclick="document.getElementById('client-dialog').close()">Annuler</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+</main>
+<script th:src="@{/js/operation-client.js(v='5')}"></script>
+</body>
+</html>

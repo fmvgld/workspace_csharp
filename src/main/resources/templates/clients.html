@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Clients · GesCal</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/common :: nav('clients')}"></nav>
+<main class="container">
+  <div th:replace="~{fragments/common :: messages}"></div>
+  <div class="page-head">
+    <div><h1>Clients</h1><div id="client-count" class="muted" th:text="${#lists.size(clients)} + ' résultat(s)'"></div></div>
+    <a class="btn btn-primary" th:href="@{/clients/nouveau}">Nouveau client</a>
+  </div>
+
+  <form id="client-search-form" class="toolbar" method="get">
+    <div class="grow">
+      <label for="q">Recherche automatique</label>
+      <input id="q" name="q" th:value="${q}" list="client-suggestions" autocomplete="off"
+             placeholder="Nom, prénom, courriel ou ville">
+      <datalist id="client-suggestions">
+        <option th:each="c:${clients}" th:value="${c.nomComplet().trim()}" th:label="${c.ville()}"></option>
+      </datalist>
+    </div>
+    <button class="btn btn-secondary">Rechercher</button>
+    <a class="btn btn-secondary" th:href="@{/clients}">Effacer</a>
+  </form>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Nom</th><th>Prénom</th><th>Courriel</th><th>Adresse</th><th>Remarque</th><th>Actions</th></tr></thead>
+      <tbody id="client-table-body">
+        <tr class="client-row" tabindex="0" title="Cliquez sur la ligne pour modifier ce client"
+            th:each="c:${clients}"
+            th:data-search="${c.nomComplet() + ' ' + c.mail + ' ' + c.adresseComplete()}"
+            th:data-edit-url="@{/clients/{id}/modifier(id=${c.id})}">
+          <td th:text="${c.nom}"></td>
+          <td th:text="${c.prenom}"></td>
+          <td><a th:if="${c.mail != null and !c.mail.isBlank()}" th:href="${'mailto:' + c.mail}" th:text="${c.mail}"></a></td>
+          <td th:text="${c.adresseComplete()}"></td>
+          <td th:text="${c.remarque}"></td>
+          <td><div class="actions">
+            <a class="btn btn-secondary btn-small" th:href="@{/clients/{id}/modifier(id=${c.id})}">Modifier</a>
+            <form method="post" th:action="@{/clients/{id}/supprimer(id=${c.id})}" onsubmit="return confirm('Supprimer ce client ?')"><button class="btn btn-danger btn-small">Supprimer</button></form>
+          </div></td>
+        </tr>
+        <tr id="client-empty-row" th:if="${#lists.isEmpty(clients)}"><td class="empty" colspan="6">Aucun client trouvé.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+<script th:src="@{/js/clients.js(v='1')}"></script>
+</body>
+</html>

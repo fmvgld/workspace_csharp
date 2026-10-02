@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Client · GesCal</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/common :: nav('clients')}"></nav>
+<main class="container">
+  <div class="page-head">
+    <div>
+      <h1 th:text="${client.id == 0 ? 'Nouveau client' : 'Modifier le client'}"></h1>
+      <div class="muted" th:text="${client.id == 0 ? 'Identité, contact et adresse — les champs marqués * sont obligatoires' : 'Modification de l’identité, du contact et de l’adresse'}"></div>
+    </div>
+  </div>
+  <form class="card" method="post" th:action="@{/clients/enregistrer}">
+    <input th:if="${client.id != 0}" type="hidden" name="id" th:value="${client.id}">
+    <div class="form-grid">
+      <div><label>Nom *</label><input name="nom" required maxlength="100" th:value="${client.nom}"></div>
+      <div><label>Prénom</label><input name="prenom" maxlength="100" th:value="${client.prenom}"></div>
+      <div class="span-2"><label>Courriel</label><input name="mail" type="email" maxlength="200" th:value="${client.mail}"></div>
+      <div class="span-2"><label th:text="${client.id == 0 ? 'Adresse / rue *' : 'Adresse / rue'}"></label><input name="nomRue" th:required="${client.id == 0}" placeholder="Ex. 40 IMPASSE DES JARDINS" th:value="${client.nomRue}"></div>
+      <div><label>Complément</label><input name="complement" th:value="${client.complement}"></div>
+      <div>
+        <label th:text="${client.id == 0 ? 'Code postal *' : 'Code postal'}"></label>
+        <input name="cp" th:required="${client.id == 0}" inputmode="numeric" pattern="[0-9]{5}" minlength="5" maxlength="5" title="Saisissez un code postal à 5 chiffres" th:value="${client.cp}">
+      </div>
+      <div><label th:text="${client.id == 0 ? 'Ville *' : 'Ville'}"></label><input name="ville" th:required="${client.id == 0}" th:value="${client.ville}"></div>
+      <div class="span-2"><label>Remarque</label><textarea name="remarque" th:text="${client.remarque}"></textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary">Enregistrer</button>
+      <a class="btn btn-secondary" th:href="@{/clients}">Annuler</a>
+    </div>
+  </form>
+</main>
+</body>
+</html>

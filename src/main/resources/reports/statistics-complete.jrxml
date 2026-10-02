@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components"
+ xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd"
+ name="statistics_complete" pageWidth="595" pageHeight="842" columnWidth="535"
+ leftMargin="30" rightMargin="30" topMargin="22" bottomMargin="22">
+
+ <style name="Table" mode="Opaque" backcolor="#FFFFFF">
+  <box><pen lineWidth="0.5" lineColor="#6B7A90"/></box>
+ </style>
+ <style name="TableHeader" mode="Opaque" backcolor="#BFE1FF" forecolor="#183153">
+  <box><pen lineWidth="0.6" lineColor="#486581"/></box>
+ </style>
+ <style name="TableFooter" mode="Opaque" backcolor="#EAF3FA" forecolor="#183153">
+  <box><pen lineWidth="0.6" lineColor="#486581"/></box>
+ </style>
+
+ <subDataset name="Stats">
+  <field name="libelle" class="java.lang.String"/>
+  <field name="nombre" class="java.lang.Integer"/>
+  <field name="montant" class="java.lang.Double"/>
+  <field name="part" class="java.lang.Double"/>
+  <variable name="TOTAL_AMOUNT" class="java.lang.Double" calculation="Sum">
+   <variableExpression><![CDATA[$F{montant}]]></variableExpression>
+   <initialValueExpression><![CDATA[0.0]]></initialValueExpression>
+  </variable>
+  <variable name="TOTAL_COUNT" class="java.lang.Integer" calculation="Sum">
+   <variableExpression><![CDATA[$F{nombre}]]></variableExpression>
+   <initialValueExpression><![CDATA[0]]></initialValueExpression>
+  </variable>
+ </subDataset>
+
+ <parameter name="YEAR" class="java.lang.Integer"/>
+ <parameter name="TOTAL" class="java.lang.Double"/>
+ <parameter name="VILLES" class="java.util.Collection"/>
+ <parameter name="REGLEMENTS" class="java.util.Collection"/>
+ <parameter name="TOURNEES" class="java.util.Collection"/>
+
+ <title>
+  <band height="58">
+   <textField>
+    <reportElement x="0" y="0" width="535" height="32" forecolor="#183153"/>
+    <textElement textAlignment="Center"><font size="22" isBold="true"/></textElement>
+    <textFieldExpression><![CDATA["Statistiques " + $P{YEAR}]]></textFieldExpression>
+   </textField>
+   <textField>
+    <reportElement x="0" y="34" width="535" height="18" forecolor="#52667A"/>
+    <textElement textAlignment="Center"><font size="10"/></textElement>
+    <textFieldExpression><![CDATA["Montant total : " + new java.text.DecimalFormat("#,##0.00").format($P{TOTAL}) + " €"]]></textFieldExpression>
+   </textField>
+  </band>
+ </title>
+
+ <detail>
+  <band height="684" splitType="Prevent">
+   <staticText><reportElement x="0" y="0" width="255" height="24" forecolor="#183153"/><textElement><font size="13" isBold="true"/></textElement><text><![CDATA[Statistiques par ville]]></text></staticText>
+   <componentElement>
+    <reportElement x="0" y="28" width="255" height="190"/>
+    <jr:table>
+     <datasetRun subDataset="Stats"><dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($P{VILLES})]]></dataSourceExpression></datasetRun>
+     <jr:column width="75">
+      <jr:columnHeader style="TableHeader" height="20"><staticText><reportElement x="2" y="3" width="71" height="14"/><textElement textAlignment="Center"><font size="7" isBold="true"/></textElement><text><![CDATA[Ville]]></text></staticText></jr:columnHeader>
+      <jr:columnFooter style="TableFooter" height="20"><staticText><reportElement x="2" y="3" width="71" height="14"/><textElement textAlignment="Center"><font size="7" isBold="true"/></textElement><text><![CDATA[Total]]></text></staticText></jr:columnFooter>
+      <jr:detailCell style="Table" height="20"><textField><reportElement x="2" y="3" width="71" height="14"/><textElement textAlignment="Center"><font size="7"/></textElement><textFieldExpression><![CDATA[$F{libelle}]]></textFieldExpression></textField></jr:detailCell>
+     </jr:column>
+     <jr:column width="55">
+      <jr:columnHeader style="TableHeader" height="20"><staticText><reportElement x="1" y="3" width="53" height="14"/><textElement textAlignment="Center"><font size="7" isBold="true"/></textElement><text><![CDATA[Montant]]></text></staticText></jr:columnHeader>
+      <jr:columnFooter style="TableFooter" height="20"><textField pattern="#,##0.00 ¤"><reportElement x="1" y="3" width="53" height="14"/><textElement textAlignment="Center"><font size="7" isBold="true"/></textElement><textFieldExpression><![CDATA[$V{TOTAL_AMOUNT}]]></textFieldExpression></textField></jr:columnFooter>
+      <jr:detailCell style="Table" height="20"><textField pattern="#,##0.00 ¤"><reportElement x="1" y="3" width="53" height="14"/><textElement textAlignment="Center"><font size="7"/></textElement><textFieldExpression><![CDATA[$F{montant}]]></textFieldExpression></textField></jr:detailCell>
+     </jr:column>
+     <jr:column width="40">
+      <jr:columnHeader style="TableHeader" height="20"><staticText><reportElement x="1" y="3" width="38" height="14"/><textElement textAlignment="Center"><font size="7" isBold="true"/></textElement><text><![CDATA[Nombre]]></text></staticText></jr:columnHeader>
+      <jr:columnFooter style="TableFooter" height="20"><textField><reportElement x="1" y="3" width="38" height="14"/><textElement textAlignment="Center"><font size="7" isBold="true"/></textElement><textFieldExpression><![CDATA[$V{TOTAL_COUNT}]]></textFieldExpression></textField></jr:columnFooter>
+      <jr:detailCell style="Table" height="20"><textField><reportElement x="1" y="3" width="38" height="14"/><textElement textAlignment="Center"><font size="7"/></textElement><textFieldExpression><![CDATA[$F{nombre}]]></textFieldExpression></textField></jr:detailCell>
+     </jr:column>
+     <jr:column width="55">
+      <jr:columnHeader style="TableHeader" height="20"><staticText><reportElement x="1" y="3" width="53" height="14"/><textElement textAlignment="Center"><font size="6" isBold="true"/></textElement><text><![CDATA[Moyenne]]></text></staticText></jr:columnHeader>
+      <jr:columnFooter style="TableFooter" height="20"><textField pattern="#,##0.00 ¤"><reportElement x="1" y="3" width="53" height="14"/><textElement textAlignment="Center"><font size="7" isBold="true"/></textElement><textFieldExpression><![CDATA[$V{TOTAL_COUNT} == 0 ? 0.0 : $V{TOTAL_AMOUNT}/$V{TOTAL_COUNT}]]></textFieldExpression></textField></jr:columnFooter>
+      <jr:detailCell style="Table" height="20"><textField pattern="#,##0.00 ¤"><reportElement x="1" y="3" width="53" height="14"/><textElement textAlignment="Center"><font size="7"/></textElement><textFieldExpression><![CDATA[$F{nombre} == 0 ? 0.0 : $F{montant}/$F{nombre}]]></textFieldExpression></textField></jr:detailCell>
+     </jr:column>
+     <jr:column width="30">
+      <jr:columnHeader style="TableHeader" height="20"><staticText><reportElement x="1" y="3" width="28" height="14"/><textElement textAlignment="Center"><font size="7" isBold="true"/></textElement><text><![CDATA[%]]></text></staticText></jr:columnHeader>
+      <jr:columnFooter style="TableFooter" height="20"/>
+      <jr:detailCell style="Table" height="20"><textField pattern="0.00%"><reportElement x="1" y="3" width="28" height="14"/><textElement textAlignment="Center"><font size="7"/></textElement><textFieldExpression><![CDATA[$F{part}]]></textFieldExpression></textField></jr:detailCell>
+     </jr:column>
+    </jr:table>
+   </componentElement>
+   <pie3DChart>
+    <chart><reportElement x="270" y="16" width="265" height="245"/><chartTitle><titleExpression><![CDATA["Répartition par ville"]]></titleExpression></chartTitle><chartLegend><font size="7"/></chartLegend></chart>
+    <pieDataset><dataset><datasetRun subDataset="Stats"><dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($P{VILLES})]]></dataSourceExpression></datasetRun></dataset><keyExpression><![CDATA[$F{libelle}]]></keyExpression><valueExpression><![CDATA[$F{montant}]]></valueExpression><labelExpression><![CDATA[$F{libelle}]]></labelExpression></pieDataset>
+    <pie3DPlot><plot/><itemLabel><font size="6"/></itemLabel></pie3DPlot>
+   </pie3DChart>
+
+   <line><reportElement x="0" y="320" width="535" height="1" forecolor="#C7D4E2"/></line>
+   <staticText><reportElement x="0" y="338" width="255" height="24" forecolor="#183153"/><textElement><font size="13" isBold="true"/></textElement><text><![CDATA[Statistiques par règlement]]></text></staticText>
+   <componentElement>
+    <reportElement x="0" y="366" width="255" height="150"/>
+    <jr:table>
+     <datasetRun subDataset="Stats"><dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($P{REGLEMENTS})]]></dataSourceExpression></datasetRun>
+     <jr:column width="75">
+      <jr:columnHeader style="TableHeader" height="22"><staticText><reportElement x="2" y="4" width="71" height="14"/><textElement textAlignment="Center"><font size="7" isBold="true"/></textElement><text><![CDATA[Règlement]]></text></staticText></jr:columnHeader>
+      <jr:columnFooter style="TableFooter" height="22"><staticText><reportElement x="2" y="4" width="71" height="14"/><textElement textAlignment="Center"><font size="7" isBold="true"/></textElement><text><![CDATA[Total]]></text></staticText></jr:columnFooter>
+      <jr:detailCell style="Table" height="22"><textField><reportElement x="2" y="4" width="71" height="14"/><textElement textAlignment="Center"><font size="7"/></textElement><textFieldExpression><![CDATA[$F{libelle}]]></textFieldExpression></textField></jr:detailCell>
+     </jr:column>
+     <jr:column width="55">
+      <jr:columnHeader style="TableHeader" height="22"><staticText><reportElement x="1" y="4" width="53" height="14"/><textElement textAlignment="Center"><font size="7" isBold="true"/></textElement><text><![CDATA[Montant]]></text></staticText></jr:columnHeader>
+      <jr:columnFooter style="TableFooter" height="22"><textField pattern="#,##0.00 ¤"><reportElement x="1" y="4" width="53" height="14"/><textElement textAlignment="Center"><font size="7" isBold="true"/></textElement><textFieldExpression><![CDATA[$V{TOTAL_AMOUNT}]]></textFieldExpression></textField></jr:columnFooter>
+      <jr:detailCell style="Table" height="22"><textField pattern="#,##0.00 ¤"><reportElement x="1" y="4" width="53" height="14"/><textElement textAlignment="Center"><font size="7"/></textElement><textFieldExpression><![CDATA[$F{montant}]]></textFieldExpression></textField></jr:detailCell>
+     </jr:column>
+     <jr:column width="40">
+      <jr:columnHeader style="TableHeader" height="22"><staticText><reportElement x="1" y="4" width="38" height="14"/><textElement textAlignment="Center"><font size="7" isBold="true"/></textElement><text><![CDATA[Nombre]]></text></staticText></jr:columnHeader>
+      <jr:columnFooter style="TableFooter" height="22"><textField><reportElement x="1" y="4" width="38" height="14"/><textElement textAlignment="Center"><font size="7" isBold="true"/></textElement><textFieldExpression><![CDATA[$V{TOTAL_COUNT}]]></textFieldExpression></textField></jr:columnFooter>
+      <jr:detailCell style="Table" height="22"><textField><reportElement x="1" y="4" width="38" height="14"/><textElement textAlignment="Center"><font size="7"/></textElement><textFieldExpression><![CDATA[$F{nombre}]]></textFieldExpression></textField></jr:detailCell>
+     </jr:column>
+     <jr:column width="55">
+      <jr:columnHeader style="TableHeader" height="22"><staticText><reportElement x="1" y="4" width="53" height="14"/><textElement textAlignment="Center"><font size="6" isBold="true"/></textElement><text><![CDATA[Moyenne]]></text></staticText></jr:columnHeader>
+      <jr:columnFooter style="TableFooter" height="22"><textField pattern="#,##0.00 ¤"><reportElement x="1" y="4" width="53" height="14"/><textElement textAlignment="Center"><font size="7" isBold="true"/></textElement><textFieldExpression><![CDATA[$V{TOTAL_COUNT} == 0 ? 0.0 : $V{TOTAL_AMOUNT}/$V{TOTAL_COUNT}]]></textFieldExpression></textField></jr:columnFooter>
+      <jr:detailCell style="Table" height="22"><textField pattern="#,##0.00 ¤"><reportElement x="1" y="4" width="53" height="14"/><textElement textAlignment="Center"><font size="7"/></textElement><textFieldExpression><![CDATA[$F{nombre} == 0 ? 0.0 : $F{montant}/$F{nombre}]]></textFieldExpression></textField></jr:detailCell>
+     </jr:column>
+     <jr:column width="30">
+      <jr:columnHeader style="TableHeader" height="22"><staticText><reportElement x="1" y="4" width="28" height="14"/><textElement textAlignment="Center"><font size="7" isBold="true"/></textElement><text><![CDATA[%]]></text></staticText></jr:columnHeader>
+      <jr:columnFooter style="TableFooter" height="22"/>
+      <jr:detailCell style="Table" height="22"><textField pattern="0.00%"><reportElement x="1" y="4" width="28" height="14"/><textElement textAlignment="Center"><font size="7"/></textElement><textFieldExpression><![CDATA[$F{part}]]></textFieldExpression></textField></jr:detailCell>
+     </jr:column>
+    </jr:table>
+   </componentElement>
+   <pie3DChart>
+    <chart><reportElement x="255" y="340" width="280" height="220"/><chartTitle><titleExpression><![CDATA["Répartition par règlement"]]></titleExpression></chartTitle><chartLegend><font size="7"/></chartLegend></chart>
+    <pieDataset><dataset><datasetRun subDataset="Stats"><dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($P{REGLEMENTS})]]></dataSourceExpression></datasetRun></dataset><keyExpression><![CDATA[$F{libelle}]]></keyExpression><valueExpression><![CDATA[$F{montant}]]></valueExpression><labelExpression><![CDATA[$F{libelle}]]></labelExpression></pieDataset>
+    <pie3DPlot><plot/><itemLabel><font size="7"/></itemLabel></pie3DPlot>
+   </pie3DChart>
+  </band>
+
+  <band height="738" splitType="Prevent">
+   <staticText><reportElement x="0" y="4" width="535" height="28" forecolor="#183153"/><textElement textAlignment="Center"><font size="16" isBold="true"/></textElement><text><![CDATA[Statistiques par tournée]]></text></staticText>
+   <componentElement>
+    <reportElement x="0" y="40" width="535" height="370"/>
+    <jr:table>
+     <datasetRun subDataset="Stats"><dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($P{TOURNEES})]]></dataSourceExpression></datasetRun>
+     <jr:column width="215">
+      <jr:columnHeader style="TableHeader" height="22"><staticText><reportElement x="4" y="4" width="207" height="14"/><textElement><font size="8" isBold="true"/></textElement><text><![CDATA[Tournée]]></text></staticText></jr:columnHeader>
+      <jr:columnFooter style="TableFooter" height="22"><staticText><reportElement x="4" y="4" width="207" height="14"/><textElement textAlignment="Center"><font size="8" isBold="true"/></textElement><text><![CDATA[Total]]></text></staticText></jr:columnFooter>
+      <jr:detailCell style="Table" height="22"><textField><reportElement x="4" y="4" width="207" height="14"/><textElement><font size="8"/></textElement><textFieldExpression><![CDATA[$F{libelle}]]></textFieldExpression></textField></jr:detailCell>
+     </jr:column>
+     <jr:column width="90">
+      <jr:columnHeader style="TableHeader" height="22"><staticText><reportElement x="2" y="4" width="86" height="14"/><textElement textAlignment="Center"><font size="8" isBold="true"/></textElement><text><![CDATA[Montant]]></text></staticText></jr:columnHeader>
+      <jr:columnFooter style="TableFooter" height="22"><textField pattern="#,##0.00 ¤"><reportElement x="2" y="4" width="86" height="14"/><textElement textAlignment="Center"><font size="8" isBold="true"/></textElement><textFieldExpression><![CDATA[$V{TOTAL_AMOUNT}]]></textFieldExpression></textField></jr:columnFooter>
+      <jr:detailCell style="Table" height="22"><textField pattern="#,##0.00 ¤"><reportElement x="2" y="4" width="86" height="14"/><textElement textAlignment="Center"><font size="8"/></textElement><textFieldExpression><![CDATA[$F{montant}]]></textFieldExpression></textField></jr:detailCell>
+     </jr:column>
+     <jr:column width="65">
+      <jr:columnHeader style="TableHeader" height="22"><staticText><reportElement x="2" y="4" width="61" height="14"/><textElement textAlignment="Center"><font size="8" isBold="true"/></textElement><text><![CDATA[Nombre]]></text></staticText></jr:columnHeader>
+      <jr:columnFooter style="TableFooter" height="22"><textField><reportElement x="2" y="4" width="61" height="14"/><textElement textAlignment="Center"><font size="8" isBold="true"/></textElement><textFieldExpression><![CDATA[$V{TOTAL_COUNT}]]></textFieldExpression></textField></jr:columnFooter>
+      <jr:detailCell style="Table" height="22"><textField><reportElement x="2" y="4" width="61" height="14"/><textElement textAlignment="Center"><font size="8"/></textElement><textFieldExpression><![CDATA[$F{nombre}]]></textFieldExpression></textField></jr:detailCell>
+     </jr:column>
+     <jr:column width="100">
+      <jr:columnHeader style="TableHeader" height="22"><staticText><reportElement x="2" y="4" width="96" height="14"/><textElement textAlignment="Center"><font size="8" isBold="true"/></textElement><text><![CDATA[Moyenne]]></text></staticText></jr:columnHeader>
+      <jr:columnFooter style="TableFooter" height="22"><textField pattern="#,##0.00 ¤"><reportElement x="2" y="4" width="96" height="14"/><textElement textAlignment="Center"><font size="8" isBold="true"/></textElement><textFieldExpression><![CDATA[$V{TOTAL_COUNT} == 0 ? 0.0 : $V{TOTAL_AMOUNT}/$V{TOTAL_COUNT}]]></textFieldExpression></textField></jr:columnFooter>
+      <jr:detailCell style="Table" height="22"><textField pattern="#,##0.00 ¤"><reportElement x="2" y="4" width="96" height="14"/><textElement textAlignment="Center"><font size="8"/></textElement><textFieldExpression><![CDATA[$F{nombre} == 0 ? 0.0 : $F{montant}/$F{nombre}]]></textFieldExpression></textField></jr:detailCell>
+     </jr:column>
+     <jr:column width="65">
+      <jr:columnHeader style="TableHeader" height="22"><staticText><reportElement x="2" y="4" width="61" height="14"/><textElement textAlignment="Center"><font size="8" isBold="true"/></textElement><text><![CDATA[%]]></text></staticText></jr:columnHeader>
+      <jr:columnFooter style="TableFooter" height="22"/>
+      <jr:detailCell style="Table" height="22"><textField pattern="0.00%"><reportElement x="2" y="4" width="61" height="14"/><textElement textAlignment="Center"><font size="8"/></textElement><textFieldExpression><![CDATA[$F{part}]]></textFieldExpression></textField></jr:detailCell>
+     </jr:column>
+    </jr:table>
+   </componentElement>
+   <pie3DChart>
+    <chart><reportElement x="20" y="415" width="495" height="285"/><chartTitle><titleExpression><![CDATA["Répartition par tournée"]]></titleExpression></chartTitle><chartLegend><font size="7"/></chartLegend></chart>
+    <pieDataset><dataset><datasetRun subDataset="Stats"><dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($P{TOURNEES})]]></dataSourceExpression></datasetRun></dataset><keyExpression><![CDATA[$F{libelle}]]></keyExpression><valueExpression><![CDATA[$F{montant}]]></valueExpression><labelExpression><![CDATA[$F{libelle}]]></labelExpression></pieDataset>
+    <pie3DPlot><plot/><itemLabel><font size="6"/></itemLabel></pie3DPlot>
+   </pie3DChart>
+  </band>
+ </detail>
+
+ <pageFooter>
+  <band height="18">
+   <textField><reportElement x="435" y="2" width="100" height="14" forecolor="#6B7A90"/><textElement textAlignment="Right"><font size="8"/></textElement><textFieldExpression><![CDATA["Page " + $V{PAGE_NUMBER}]]></textFieldExpression></textField>
+  </band>
+ </pageFooter>
+</jasperReport>

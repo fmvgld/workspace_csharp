@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components"
+ xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd"
+ name="statisticsAnnualRevenue" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="30" rightMargin="30" topMargin="25" bottomMargin="25">
+
+ <style name="Table" mode="Opaque" backcolor="#FFFFFF" forecolor="#111827">
+  <box><pen lineWidth="0.5" lineColor="#7890AA"/></box>
+ </style>
+ <style name="TableHeader" mode="Opaque" backcolor="#B9DAF5" forecolor="#111827">
+  <box><pen lineWidth="0.7" lineColor="#587694"/></box>
+ </style>
+ <style name="TableFooter" mode="Opaque" backcolor="#E7F1F8" forecolor="#111827">
+  <box><pen lineWidth="0.7" lineColor="#587694"/></box>
+ </style>
+
+ <subDataset name="AnnualRevenue">
+  <field name="annee" class="java.lang.Integer"/>
+  <field name="nombre" class="java.lang.Integer"/>
+  <field name="montant" class="java.lang.Double"/>
+  <field name="evolution" class="java.lang.Double"/>
+  <variable name="TOTAL_AMOUNT" class="java.lang.Double" calculation="Sum"><variableExpression><![CDATA[$F{montant}]]></variableExpression><initialValueExpression><![CDATA[0.0]]></initialValueExpression></variable>
+  <variable name="TOTAL_COUNT" class="java.lang.Integer" calculation="Sum"><variableExpression><![CDATA[$F{nombre}]]></variableExpression><initialValueExpression><![CDATA[0]]></initialValueExpression></variable>
+ </subDataset>
+
+ <parameter name="TOTAL" class="java.lang.Double"/>
+ <parameter name="ANNUAL_LINES" class="java.util.Collection"/>
+
+ <detail>
+  <band height="735" splitType="Prevent">
+   <staticText><reportElement x="0" y="5" width="535" height="34" forecolor="#183153"/><textElement textAlignment="Center"><font size="20" isBold="true"/></textElement><text><![CDATA[Évolution annuelle du chiffre d'affaires]]></text></staticText>
+   <textField pattern="#,##0.00 ¤"><reportElement x="0" y="45" width="535" height="22" forecolor="#52677F"/><textElement textAlignment="Center"><font size="11"/></textElement><textFieldExpression><![CDATA[$P{TOTAL}]]></textFieldExpression></textField>
+   <staticText><reportElement x="0" y="45" width="220" height="22" forecolor="#52677F"/><textElement textAlignment="Right"><font size="11"/></textElement><text><![CDATA[CA cumulé : ]]></text></staticText>
+
+   <barChart>
+    <chart><reportElement x="20" y="85" width="495" height="330"/><chartTitle><titleExpression><![CDATA["Évolution du chiffre d'affaires par année"]]></titleExpression></chartTitle><chartLegend><font size="9"/></chartLegend></chart>
+    <categoryDataset><dataset><datasetRun subDataset="AnnualRevenue"><dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($P{ANNUAL_LINES})]]></dataSourceExpression></datasetRun></dataset><categorySeries><seriesExpression><![CDATA["Chiffre d'affaires"]]></seriesExpression><categoryExpression><![CDATA[$F{annee}.toString()]]></categoryExpression><valueExpression><![CDATA[$F{montant}]]></valueExpression></categorySeries></categoryDataset>
+    <barPlot><plot/><categoryAxisLabelExpression><![CDATA["Année"]]></categoryAxisLabelExpression><valueAxisLabelExpression><![CDATA["Chiffre d'affaires (€)"]]></valueAxisLabelExpression></barPlot>
+   </barChart>
+
+   <staticText><reportElement x="0" y="438" width="535" height="26" forecolor="#183153"/><textElement><font size="14" isBold="true"/></textElement><text><![CDATA[Détail annuel]]></text></staticText>
+   <componentElement>
+    <reportElement x="55" y="472" width="425" height="220"/>
+    <jr:table>
+     <datasetRun subDataset="AnnualRevenue"><dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($P{ANNUAL_LINES})]]></dataSourceExpression></datasetRun>
+     <jr:column width="85">
+      <jr:columnHeader style="TableHeader" height="25"><staticText><reportElement x="3" y="5" width="79" height="15"/><textElement textAlignment="Center"><font size="9" isBold="true"/></textElement><text><![CDATA[Année]]></text></staticText></jr:columnHeader>
+      <jr:columnFooter style="TableFooter" height="25"><staticText><reportElement x="3" y="5" width="79" height="15"/><textElement textAlignment="Center"><font size="9" isBold="true"/></textElement><text><![CDATA[Total]]></text></staticText></jr:columnFooter>
+      <jr:detailCell style="Table" height="25"><textField><reportElement x="3" y="5" width="79" height="15"/><textElement textAlignment="Center"><font size="9"/></textElement><textFieldExpression><![CDATA[$F{annee}]]></textFieldExpression></textField></jr:detailCell>
+     </jr:column>
+     <jr:column width="100">
+      <jr:columnHeader style="TableHeader" height="25"><staticText><reportElement x="3" y="5" width="94" height="15"/><textElement textAlignment="Center"><font size="9" isBold="true"/></textElement><text><![CDATA[Opérations]]></text></staticText></jr:columnHeader>
+      <jr:columnFooter style="TableFooter" height="25"><textField><reportElement x="3" y="5" width="94" height="15"/><textElement textAlignment="Center"><font size="9" isBold="true"/></textElement><textFieldExpression><![CDATA[$V{TOTAL_COUNT}]]></textFieldExpression></textField></jr:columnFooter>
+      <jr:detailCell style="Table" height="25"><textField><reportElement x="3" y="5" width="94" height="15"/><textElement textAlignment="Center"><font size="9"/></textElement><textFieldExpression><![CDATA[$F{nombre}]]></textFieldExpression></textField></jr:detailCell>
+     </jr:column>
+     <jr:column width="140">
+      <jr:columnHeader style="TableHeader" height="25"><staticText><reportElement x="3" y="5" width="134" height="15"/><textElement textAlignment="Center"><font size="9" isBold="true"/></textElement><text><![CDATA[Chiffre d'affaires]]></text></staticText></jr:columnHeader>
+      <jr:columnFooter style="TableFooter" height="25"><textField pattern="#,##0.00 ¤"><reportElement x="3" y="5" width="134" height="15"/><textElement textAlignment="Center"><font size="9" isBold="true"/></textElement><textFieldExpression><![CDATA[$V{TOTAL_AMOUNT}]]></textFieldExpression></textField></jr:columnFooter>
+      <jr:detailCell style="Table" height="25"><textField pattern="#,##0.00 ¤"><reportElement x="3" y="5" width="134" height="15"/><textElement textAlignment="Center"><font size="9"/></textElement><textFieldExpression><![CDATA[$F{montant}]]></textFieldExpression></textField></jr:detailCell>
+     </jr:column>
+     <jr:column width="100">
+      <jr:columnHeader style="TableHeader" height="25"><staticText><reportElement x="3" y="5" width="94" height="15"/><textElement textAlignment="Center"><font size="9" isBold="true"/></textElement><text><![CDATA[Évolution]]></text></staticText></jr:columnHeader>
+      <jr:columnFooter style="TableFooter" height="25"/>
+      <jr:detailCell style="Table" height="25"><textField><reportElement x="3" y="5" width="94" height="15"/><textElement textAlignment="Center"><font size="9"/></textElement><textFieldExpression><![CDATA[$F{evolution} == null ? "-" : new java.text.DecimalFormat("+0.00%;-0.00%").format($F{evolution})]]></textFieldExpression></textField></jr:detailCell>
+     </jr:column>
+    </jr:table>
+   </componentElement>
+  </band>
+ </detail>
+ <pageFooter><band height="20"><textField><reportElement x="435" y="3" width="100" height="15" forecolor="#52677F"/><textElement textAlignment="Right"><font size="8"/></textElement><textFieldExpression><![CDATA["Page " + $V{PAGE_NUMBER}]]></textFieldExpression></textField></band></pageFooter>
+</jasperReport>

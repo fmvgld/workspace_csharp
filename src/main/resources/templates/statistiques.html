@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Statistiques · GesCal</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/common :: nav('statistiques')}"></nav>
+<main class="container">
+  <div class="page-head">
+    <div><h1>Statistiques</h1><div class="muted">Répartition des opérations et montants</div></div>
+    <div class="toolbar">
+      <div>
+        <label>Édition statistique</label>
+        <select aria-label="Édition statistique" onchange="if(this.value){window.open(this.value,'_blank');this.selectedIndex=0;}">
+          <option value="">1 - Statistique actuelle</option>
+          <option th:value="@{/outils/statistiques/completes.pdf(annee=${annee})}">2 - Nouvelle statistique complète (PDF)</option>
+          <option th:value="@{/outils/statistiques/evolution-ca.pdf}">3 - Évolution annuelle du chiffre d'affaires (PDF)</option>
+        </select>
+      </div>
+      <form method="get">
+        <div><label>Année</label><input name="annee" type="number" th:value="${annee}"></div>
+        <button class="btn btn-secondary">Afficher</button>
+      </form>
+      <a class="btn btn-primary" th:href="@{/outils/statistiques/actuelles.pdf(annee=${annee})}">Exporter en PDF</a>
+    </div>
+  </div>
+  <div class="cards">
+    <div class="card metric"><span>Opérations</span><strong th:text="${stats.operations}"></strong></div>
+    <div class="card metric"><span>Montant total</span><strong th:text="${#numbers.formatDecimal(stats.montant,1,2)} + ' €'"></strong></div>
+    <div class="card metric"><span>Reçus à envoyer</span><strong th:text="${stats.recusAEnvoyer}"></strong></div>
+  </div>
+  <div class="grid-2">
+    <section class="card"><h2>Par règlement</h2><div class="table-wrap"><table><thead><tr><th>Règlement</th><th class="num">Nombre</th><th class="num">Montant</th></tr></thead><tbody><tr th:each="s:${parReglement}"><td th:text="${s.libelle}"></td><td class="num" th:text="${s.nombre}"></td><td class="num" th:text="${#numbers.formatDecimal(s.montant,1,2)} + ' €'"></td></tr></tbody></table></div></section>
+    <section class="card"><h2>Par tournée</h2><div class="table-wrap"><table><thead><tr><th>Tournée</th><th class="num">Nombre</th><th class="num">Montant</th></tr></thead><tbody><tr th:each="s:${parTournee}"><td th:text="${s.libelle}"></td><td class="num" th:text="${s.nombre}"></td><td class="num" th:text="${#numbers.formatDecimal(s.montant,1,2)} + ' €'"></td></tr></tbody></table></div></section>
+    <section class="card span-2"><h2>Par ville (30 premières)</h2><div class="table-wrap"><table><thead><tr><th>Ville</th><th class="num">Nombre</th><th class="num">Montant</th></tr></thead><tbody><tr th:each="s:${parVille}"><td th:text="${s.libelle}"></td><td class="num" th:text="${s.nombre}"></td><td class="num" th:text="${#numbers.formatDecimal(s.montant,1,2)} + ' €'"></td></tr></tbody></table></div></section>
+  </div>
+</main>
+</body>
+</html>
